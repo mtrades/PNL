@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solana PnL Tracker</title>
+    <style>
+        body {
+            background-color: transparent;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .pnl-box {
+            background: linear-gradient(135deg, #1E1E2E, #2A2A3A);
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 400px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .pnl-item {
+            text-align: center;
+            color: white;
+        }
+        .pnl-label {
+            font-size: 14px;
+            color: #B0B0B0;
+        }
+        .pnl-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .positive {
+            color: #32CD32;
+        }
+        .negative {
+            color: #FF4C4C;
+        }
+    </style>
+</head>
+<body>
+    <div class="pnl-box">
+        <div class="pnl-item">
+            <div class="pnl-label">BALANCE:</div>
+            <div id="solBalance" class="pnl-value">Loading...</div>
+        </div>
+        <div class="pnl-item">
+            <div class="pnl-label">PNL TODAY:</div>
+            <div id="solPnl" class="pnl-value">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        const WALLET_ADDRESS = "EyWKwzx6spdhcbt72zR9rt7CXwxVEte5cLPrJsmGcADC";
+        const STARTING_BALANCE = 2.046;
+
+        async function fetchSolBalance() {
+            try {
+                let response = await fetch(`https://api.mainnet-beta.solana.com`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        jsonrpc: "2.0",
+                        id: 1,
+                        method: "getBalance",
+                        params: [WALLET_ADDRESS]
+                    })
+                });
+                let data = await response.json();
+                let balanceInSol = data.result.value / 1000000000; // Convert lamports to SOL
+                document.getElementById("solBalance").innerHTML = balanceInSol.toFixed(3) + " SOL";
+                
+                let pnl = balanceInSol - STARTING_BALANCE;
+                let pnlElement = document.getElementById("solPnl");
+                pnlElement.innerHTML = (pnl >= 0 ? "+" : "") + pnl.toFixed(3) + " SOL";
+                pnlElement.className = pnl >= 0 ? "pnl-value positive" : "pnl-value negative";
+            } catch (error) {
+                console.error("Error fetching balance:", error);
+                document.getElementById("solBalance").innerHTML = "Error";
+                document.getElementById("solPnl").innerHTML = "Error";
+            }
+        }
+
+        fetchSolBalance();
+        setInterval(fetchSolBalance, 10000); // Update every 10 seconds
+    </script>
+</body>
+</html>
