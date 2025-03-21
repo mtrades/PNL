@@ -58,29 +58,11 @@
     <script>
         const WALLET_ADDRESS = "EyWKwzx6spdhcbt72zR9rt7CXwxVEte5cLPrJsmGcADC";
         const STARTING_BALANCE = 2.046;
+        const API_URL = "https://solana-mainnet.g.alchemy.com/v2/-d6FSjDcYGbkrmjtBkiJoHpz9tRm2q6w";
 
         async function fetchSolBalance() {
             try {
-                let response = await fetch(`https://solana-mainnet.g.alchemy.com/v2/-d6FSjDcYGbkrmjtBkiJoHpz9tRm2q6w`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getBalance",
-        params: ["EyWKwzx6spdhcbt72zR9rt7CXwxVEte5cLPrJsmGcADC"]
-    })
-});
-let data = await response.json();
-
-if (!data.result) {
-    console.error("API Response Error:", data);
-    document.getElementById("solBalance").innerHTML = "API Error";
-} else {
-    let balanceInSol = data.result.value / 1000000000;
-    document.getElementById("solBalance").innerHTML = balanceInSol.toFixed(3) + " SOL";
-}
-
+                let response = await fetch(API_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -91,19 +73,22 @@ if (!data.result) {
                     })
                 });
                 let data = await response.json();
-                if (data.result) {
-    let balanceInSol = data.result.value / 1000000000;
-    document.getElementById("solBalance").innerHTML = balanceInSol.toFixed(3) + " SOL";
-} else {
-    document.getElementById("solBalance").innerHTML = "API Error";
-}
- // Convert lamports to SOL
+
+                if (!data || !data.result) {
+                    console.error("API Response Error:", data);
+                    document.getElementById("solBalance").innerHTML = "API Error";
+                    document.getElementById("solPnl").innerHTML = "API Error";
+                    return;
+                }
+
+                let balanceInSol = data.result.value / 1000000000; // Convert from lamports to SOL
                 document.getElementById("solBalance").innerHTML = balanceInSol.toFixed(3) + " SOL";
-                
+
                 let pnl = balanceInSol - STARTING_BALANCE;
                 let pnlElement = document.getElementById("solPnl");
                 pnlElement.innerHTML = (pnl >= 0 ? "+" : "") + pnl.toFixed(3) + " SOL";
                 pnlElement.className = pnl >= 0 ? "pnl-value positive" : "pnl-value negative";
+
             } catch (error) {
                 console.error("Error fetching balance:", error);
                 document.getElementById("solBalance").innerHTML = "Error";
