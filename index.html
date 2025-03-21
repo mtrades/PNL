@@ -82,11 +82,11 @@
                 }
 
                 let balanceInSol = data.result.value / 1000000000; // Convert from lamports to SOL
-                document.getElementById("solBalance").innerHTML = balanceInSol.toFixed(3) + " SOL";
+                document.getElementById("solBalance").innerHTML = balanceInSol.toFixed(2) + " SOL"; // Changed to 2 decimal places
 
                 let pnl = balanceInSol - STARTING_BALANCE;
                 let pnlElement = document.getElementById("solPnl");
-                pnlElement.innerHTML = (pnl >= 0 ? "+" : "") + pnl.toFixed(3) + " SOL";
+                pnlElement.innerHTML = (pnl >= 0 ? "+" : "") + pnl.toFixed(2) + " SOL"; // Changed to 2 decimal places
                 pnlElement.className = pnl >= 0 ? "pnl-value positive" : "pnl-value negative";
 
             } catch (error) {
